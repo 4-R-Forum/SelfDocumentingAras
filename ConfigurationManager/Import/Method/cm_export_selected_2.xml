@@ -1,0 +1,73 @@
+﻿<AML>
+ <Item type="Method" id="6ABEDC29E7C54107B54F83F648C006AE" action="add">
+  <execution_allowed_to keyed_name="World" type="Identity">A73B655731924CD0B027E4F4D5FCC0A9</execution_allowed_to>
+  <method_code><![CDATA[//System.Diagnostics.Debugger.Break();
+Innovator innov=this.getInnovator();
+string base_url="http://jhodge06/Innovator11SP6/Server/InnovatorServer.aspx";
+string db="IS11SP6_2014";
+string user="root";
+string pw="innovator";
+
+string this_id=this.getNewID();
+string server_temp=HttpContext.Current.Request.MapPath("temp");
+string work_folder=server_temp+@"\"+this_id+@"\";
+Directory.CreateDirectory(work_folder);
+string export_folder=work_folder+this.getProperty("name");
+Directory.CreateDirectory(export_folder);
+
+/* **************************************************
+* The following lines use Libs.dll, copied to Server/bin
+* and reference added to method_config.xml.
+* Build number of libs.dll probably needs to match IOM.dll
+* which it does v11SP9.
+* Research by inspecting source code in Visual Studio, aka "the documentation"
+* from libs source code: public CItemHelper(string Url, string Password, string DbName, string UserName, string Folder)
+* It is necessary to log in as well for ItemTypes and Relationship types to be exported!
+*************************************************** */
+
+CItemHelper cih =new CItemHelper(base_url,pw,db,user,export_folder);
+cih.Login();
+CExportItems cei = new CExportItems(cih);
+ManifestFile mf_file=new ManifestFile();
+
+Item pe_to_export=this.fetchRelationships("ConfigurationElement").getItemsByXPath("//Item[do_export='1']");
+for (int i = 0;i<pe_to_export.getItemCount();i++)
+{
+    
+    Item this_element=pe_to_export.getItemByIndex(i);
+    string this_pd=this_element.getProperty("package_definition");
+    if (this_element.getProperty("package_group")=="RelationshipType (ItemType)") this_element.setProperty("package_group","RelationshipType");
+    if (mf_file.GetPackageNode(this_pd)==null) mf_file.AddPackage(this_pd);
+    cih.Folder=export_folder+@"\"+this_pd+@"\Import\";
+    ExportItem ei = new ExportItem(this_element.getProperty("package_element"),this_element.getProperty("element_id"),this_element.getProperty("package_group"));
+    cei.Export(ei,this_pd,"1",new Hashtable());
+}
+mf_file.Save(export_folder+@"\"+"imports.mf");
+ZipFile export_zip= new ZipFile();
+
+string export_zip_filename=this.getProperty("name")+".zip";
+string export_zip_full_path=export_folder+@"\"+export_zip_filename;
+export_zip.AddDirectory(export_folder);
+export_zip.Save(export_zip_full_path);
+
+// Create and vault the file
+
+string vaultedFileID = this.getNewID();
+Item export_zip_file = this.newItem("File", "add");
+export_zip_file.setID(vaultedFileID);
+ export_zip_file.setProperty("filename", export_zip_filename);
+ export_zip_file.attachPhysicalFile(export_zip_full_path);
+Item vaultedFile = export_zip_file.apply();
+
+
+return vaultedFile;
+
+
+
+
+               
+        ]]></method_code>
+  <method_type>C#</method_type>
+  <name>cm_export_selected_2</name>
+ </Item>
+</AML>

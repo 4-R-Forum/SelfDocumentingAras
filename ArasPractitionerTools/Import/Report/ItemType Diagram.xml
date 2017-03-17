@@ -1,0 +1,16 @@
+﻿<AML>
+ <Item type="Report" id="108154F715474F288659412F7D27ECB9" action="add">
+  <label xml:lang="en">ItemType Diagram</label>
+  <location>client</location>
+  <method keyed_name="ShowItemTypeDiagram2" type="Method">
+   <Item type="Method" action="get" select="id">
+    <name>ShowItemTypeDiagram2</name>
+   </Item>
+  </method>
+  <report_query><![CDATA[<Item type="{@type}" id="{@id}" action="get" select=""/>
+]]></report_query>
+  <target>none</target>
+  <type>item</type>
+  <name>ItemType Diagram</name>
+ </Item>
+</AML>

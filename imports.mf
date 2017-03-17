@@ -1,0 +1,6 @@
+<imports>
+  <package name="ConfigurationManager" path="ConfigurationManager\Import">
+    <dependson name="ArasPractitionerTools" />
+  </package>
+  <package name="ArasPractitionerTools" path="ArasPractitionerTools\Import" />
+</imports>

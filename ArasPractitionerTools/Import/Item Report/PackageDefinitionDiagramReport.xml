@@ -1,0 +1,7 @@
+﻿<AML>
+ <Item type="Item Report" id="D24F010029214ED68EC6F48B54BFB0FE" action="add">
+  <related_id keyed_name="ItemType Diagram" type="Report">108154F715474F288659412F7D27ECB9</related_id>
+  <sort_order>128</sort_order>
+  <source_id keyed_name="PackageDefinition" type="ItemType" name="PackageDefinition">F312562D6AD948DCBCCCCF6A615EE0EA</source_id>
+ </Item>
+</AML>

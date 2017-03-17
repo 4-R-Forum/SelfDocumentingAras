@@ -1,0 +1,73 @@
+﻿<AML>
+ <Item type="Method" id="EE64FBC3BAC74EF19C75F52EBFB16417" action="add">
+  <execution_allowed_to keyed_name="World" type="Identity">A73B655731924CD0B027E4F4D5FCC0A9</execution_allowed_to>
+  <method_code><![CDATA[
+var innov =document.thisItem.getInnovator();
+// get the CM to edit from client cache, it must be in cache because the item window is open
+var source_id=document.thisItem.getProperty("source_id");
+var cm_item=top.aras.itemsCache.getItem(source_id);
+
+// set attributes so that client will know to send changes to server on save
+cm_item.setAttribute("isDirty","1");
+cm_item.setAttribute("action","update");
+// find the window that opened the dialog that called this method, so that we can find its grid and selected_ids
+var cm_wnd=top.aras.uiFindWindowEx(source_id);
+if (!cm_wnd) { top.aras.AlertError("Unable to find cm window");return;}
+var relTabId="DE00F47CC7A54498A8020C1E7668A8B6";
+var grid = cm_wnd.relationships.iframesCollection[relTabId].contentWindow.gridApplet;
+var el_ids=document.thisItem.getProperty("el_ids").split(",");
+// array of el properties to copy
+var props= new Array();
+props.push("do_export");
+props.push("status_color");
+props.push("comments");
+
+
+// traverse the selected grid rows
+for  ( el_id in el_ids)
+{
+  // get the id of this el from the array
+  var this_el_id=el_ids[el_id];
+  // find the el in the client cache
+  var el=top.aras.itemsCache.getItem(this_el_id);
+  // it this is the first edit of this cm, its els may not be in cache yet
+  if (!el) {el=cm_item.selectSingleNode("//Item[@id='"+this_el_id+"']");}
+  if (!el)
+  {
+    // get the el from the server, and add it to the client cache
+    el=innov.getItemById("Configuration Manager",this_el_id).node;
+    cm_item.selectSingleNode("Relationships").appendChild(el);
+  }
+  // set attributes so that client will know to update values on save
+  if (!el.getAttribute("isNew"))
+  {
+	  el.setAttribute("isDirty","1");
+	  el.setAttribute("action","update");
+  }
+  // traverse the props to change
+  for (prop in props)
+  {
+	  var this_prop=props[prop];
+	  // get new value from dialog
+	  var val=document.thisItem.getProperty(this_prop,"");
+// for this multi edit we want to change all values!      
+// 	  if (val!=="")
+// 	  {
+	     // change the value if there is a value
+		 // set the new value for the el in the client cache
+		  top.aras.setItemProperty(el,this_prop,val);
+		  // change the values in the grid, so that the user will see that they have been changed
+		  // undocumented feature: the grid appends "_D" to the names of the columns we want
+		  var col=grid.GetColumnIndex(this_prop+"_D");
+		  grid.cells(this_el_id,col).setValue(val);
+// 	  }
+  }
+}
+// refresh of CM window
+cm_wnd.onRefresh();
+// close the dialog window
+window.parent.close();]]></method_code>
+  <method_type>JavaScript</method_type>
+  <name>cm_element_multi_edit_execute</name>
+ </Item>
+</AML>

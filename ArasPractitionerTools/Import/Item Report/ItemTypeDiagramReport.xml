@@ -1,0 +1,7 @@
+﻿<AML>
+ <Item type="Item Report" id="830FAB035EFB41A79819F878E1589216" action="add">
+  <related_id keyed_name="ItemType Diagram" type="Report">108154F715474F288659412F7D27ECB9</related_id>
+  <sort_order>512</sort_order>
+  <source_id keyed_name="ItemType" type="ItemType" name="ItemType">450906E86E304F55A34B3C0D65C097EA</source_id>
+ </Item>
+</AML>

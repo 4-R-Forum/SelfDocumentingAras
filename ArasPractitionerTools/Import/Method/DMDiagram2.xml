@@ -1,0 +1,87 @@
+﻿<AML>
+ <Item type="Method" id="0442178942744B44A001D3A12D47821F" action="add">
+  <execution_allowed_to keyed_name="World" type="Identity">A73B655731924CD0B027E4F4D5FCC0A9</execution_allowed_to>
+  <method_code><![CDATA[Innovator innov = this.getInnovator();
+string report_type=this.getProperty("report_type");
+string typeID=this.getProperty("typeID");
+Item qry1 = this.newItem("SQL","SQL PROCESS");
+qry1.setProperty("name","SELECTPUMLDIAGRAM");
+qry1.setProperty("PROCESS","CALL");
+qry1.setProperty("ARG1", report_type);
+qry1.setProperty("ARG2",typeID);
+Item result = qry1.apply();
+//System.Diagnostics.Debugger.Break();
+string dot="";
+string m="";// msg for debugging
+bool debug=false;
+string dot_loc=  @"""C:\Program Files (x86)\Graphviz2.38\bin\dot.exe""";
+string temp_loc= HttpContext.Current.Request.MapPath("./temp/");
+for (int i=0;i<result.getItemCount();i++)
+{ 
+  dot+=result.getItemByIndex(i).getProperty("dot_element");
+}
+
+dot="digraph g{"+dot+"}";
+
+string fn=temp_loc+innov.getNewID();
+
+try 
+{
+	using (StreamWriter sw = new StreamWriter(fn+".dot")) 
+	{
+		// save dot as a file
+		sw.Write(dot);
+		sw.Close();
+	}
+}
+catch (Exception e)
+{
+	m="Cannot save dot. "+e.Message;
+	CCO.Utilities.WriteDebug("DebugDMDiag", m);
+	return innov.newError("Cannot save dot");
+}
+string result2="";
+string d="";
+int n=0;
+try 
+{       
+	    bool ok=false;
+	    d=@" -Tsvg -o"""+fn+@".svg"" """+fn+@".dot""";
+	    System.Diagnostics.Process p = new System.Diagnostics.Process();
+	    p.StartInfo=  new System.Diagnostics.ProcessStartInfo( dot_loc, d);
+        ok=p.Start();
+        if (debug)
+        {
+           m= ok ? "Dot started " + dot_loc+ d: "Dot not started";
+           CCO.Utilities.WriteDebug("DebugDMDiag",  m);
+        }
+		while (!p.HasExited) { n+=1; System.Threading.Thread.Sleep(1); }
+	
+	using (StreamReader sr = new StreamReader(fn+".svg")) 
+	{
+		result2 =sr.ReadToEnd();
+		sr.Close();
+	}
+}
+catch (Exception e)
+{
+	m="Save svg failed. "+e.Message;
+	CCO.Utilities.WriteDebug("DebugDMDiag",  m);
+	return innov.newError(e.Message);
+}
+System.Threading.Thread.Sleep(100);
+File.Delete(fn+".dot");
+File.Delete(fn+".svg");
+int s=result2.IndexOf("<svg");
+result2=result2.Substring(s);
+string pan_zoom=@"<text  x=""4"" y=""14"" font-family=""Arial"" font-size=""14.00"">Use Ctrl+ and Ctrl- to Zoom and Scrollbars to Pan</text>";
+result2=result2.Replace("</svg>", pan_zoom+"</svg>");
+result2=result2.Replace("\r\n","");
+
+return innov.newResult(result2);
+
+]]></method_code>
+  <method_type>C#</method_type>
+  <name>DMDiagram2</name>
+ </Item>
+</AML>

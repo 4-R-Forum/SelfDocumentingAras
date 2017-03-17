@@ -1,0 +1,115 @@
+﻿<AML>
+ <Item type="RelationshipType" id="C33FF9B4543E479AA2BE3B828A116101" action="add" dependencyLevel="0">
+  <auto_search>1</auto_search>
+  <behavior>float</behavior>
+  <copy_permissions>0</copy_permissions>
+  <create_related>0</create_related>
+  <hide_in_all>1</hide_in_all>
+  <inc_rel_key_name>1</inc_rel_key_name>
+  <inc_related_key_name>1</inc_related_key_name>
+  <is_list_type>0</is_list_type>
+  <label xml:lang="en">Git</label>
+  <new_show_related>0</new_show_related>
+  <related_notnull>0</related_notnull>
+  <related_option>2</related_option>
+  <relationship_id keyed_name="ConfigurationGit" type="ItemType" name="ConfigurationGit">
+   <Item type="ItemType" id="92E10938CE094A53B9E04F11BCCA058E" action="add">
+    <allow_private_permission>1</allow_private_permission>
+    <auto_search>0</auto_search>
+    <enforce_discovery>0</enforce_discovery>
+    <hide_where_used>0</hide_where_used>
+    <implementation_type>table</implementation_type>
+    <instance_data>CONFIGURATIONGIT</instance_data>
+    <is_dependent>0</is_dependent>
+    <is_relationship>1</is_relationship>
+    <is_versionable>0</is_versionable>
+    <revisions keyed_name="Default" type="Revision">7FE395DD8B9F4E1090756A34B733D75E</revisions>
+    <show_parameters_tab>1</show_parameters_tab>
+    <structure_view>tabs off</structure_view>
+    <unlock_on_logout>0</unlock_on_logout>
+    <use_src_access>1</use_src_access>
+    <name>ConfigurationGit</name>
+    <Relationships>
+     <Item type="Property" id="70FD42377F25435FA2656944531AE2CC" action="add">
+      <column_alignment>left</column_alignment>
+      <data_source keyed_name="CME Status Color">B53D9116FD1D4B00B14EEF9952786908</data_source>
+      <data_type>list</data_type>
+      <is_hidden>0</is_hidden>
+      <is_hidden2>0</is_hidden2>
+      <is_indexed>0</is_indexed>
+      <is_keyed>0</is_keyed>
+      <is_multi_valued>0</is_multi_valued>
+      <is_required>0</is_required>
+      <label xml:lang="en">cm_git_command</label>
+      <range_inclusive>0</range_inclusive>
+      <readonly>0</readonly>
+      <sort_order>3584</sort_order>
+      <source_id keyed_name="ConfigurationGit" type="ItemType" name="ConfigurationGit">92E10938CE094A53B9E04F11BCCA058E</source_id>
+      <stored_length>256</stored_length>
+      <track_history>0</track_history>
+      <name>cm_git_command</name>
+     </Item>
+     <Item type="Property" id="4AEA9DA0B3804C0FB9D7CB898AFFE805" action="add">
+      <column_alignment>left</column_alignment>
+      <data_type>text</data_type>
+      <is_hidden>0</is_hidden>
+      <is_hidden2>0</is_hidden2>
+      <is_indexed>0</is_indexed>
+      <is_keyed>0</is_keyed>
+      <is_multi_valued>0</is_multi_valued>
+      <is_required>0</is_required>
+      <label xml:lang="en">cm_git_response</label>
+      <range_inclusive>0</range_inclusive>
+      <readonly>0</readonly>
+      <sort_order>3840</sort_order>
+      <source_id keyed_name="ConfigurationGit" type="ItemType" name="ConfigurationGit">92E10938CE094A53B9E04F11BCCA058E</source_id>
+      <track_history>0</track_history>
+      <name>cm_git_response</name>
+     </Item>
+     <Item type="Property" id="A21AE6EAC1A24A93B75938086C833462" action="add">
+      <column_alignment>left</column_alignment>
+      <data_type>string</data_type>
+      <is_hidden>0</is_hidden>
+      <is_hidden2>0</is_hidden2>
+      <is_indexed>0</is_indexed>
+      <is_keyed>0</is_keyed>
+      <is_multi_valued>0</is_multi_valued>
+      <is_required>0</is_required>
+      <label xml:lang="en">cm_manual_command</label>
+      <range_inclusive>0</range_inclusive>
+      <readonly>0</readonly>
+      <sort_order>3712</sort_order>
+      <source_id keyed_name="ConfigurationGit" type="ItemType" name="ConfigurationGit">92E10938CE094A53B9E04F11BCCA058E</source_id>
+      <stored_length>256</stored_length>
+      <track_history>0</track_history>
+      <name>cm_manual_command</name>
+     </Item>
+     <Item type="View" id="821BC0DE9F85418E8D558E428E7B44F8" action="add">
+      <client>js</client>
+      <related_id keyed_name="ConfigurationGit" type="Form">564DF3FC4D8048BA91ABB4CB015E37BC</related_id>
+      <role keyed_name="World" type="Identity">
+       <Item type="Identity" action="get" select="id">
+        <name>World</name>
+       </Item>
+      </role>
+      <show_ssvc>0</show_ssvc>
+      <sort_order>128</sort_order>
+      <source_id keyed_name="ConfigurationGit" type="ItemType" name="ConfigurationGit">92E10938CE094A53B9E04F11BCCA058E</source_id>
+      <type>default</type>
+     </Item>
+    </Relationships>
+   </Item>
+  </relationship_id>
+  <sort_order>2</sort_order>
+  <source_id keyed_name="ConfigurationManager" type="ItemType" name="ConfigurationManager">4A3101E0E36741E89DAB2DEB29C260BC</source_id>
+  <name>ConfigurationGit</name>
+  <Relationships>
+   <Item type="Relationship View" id="E340EEA605AA403CBF2AB890A2D67681" action="add">
+    <form keyed_name="ConfigurationGit" type="Form">564DF3FC4D8048BA91ABB4CB015E37BC</form>
+    <related_id keyed_name="Administrators" type="Identity">2618D6F5A90949BAA7E920D1B04C7EE1</related_id>
+    <sort_order>128</sort_order>
+    <source_id keyed_name="ConfigurationGit" type="RelationshipType">C33FF9B4543E479AA2BE3B828A116101</source_id>
+   </Item>
+  </Relationships>
+ </Item>
+</AML>

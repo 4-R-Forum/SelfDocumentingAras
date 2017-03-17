@@ -1,0 +1,31 @@
+SelfDocumentingAras
+
+Configuration Manager and ArasPractitionerTools Packages
+	
+Release Notes
+
+v11SP3   12/22/2015 PackageAudit updated
+v11SP5   04/22/2016 List/Sequence Where used added
+v11SP9   03/24/2017 Updated for SP9, dependence on ActiveX removed.
+
+These tools are intended to help implementation team members, Aras Practitioners, export, diff and import Aras PackageDefinition and support both manual and automated source control processes, following these steps:
+	1. Determine what changes have been made in a dev database that need to be shared with others
+	2. Export the changed Items
+	3. Create packages that can be tested, validated and deployed to production, with the least effort
+	4. Save and merge changes with whatever source control process the team is using
+
+The tools use same libs.dll assembly used by the Aras Solutions Upgrade tools. Third party tool such as BeyondCompare or DiffDog is required for diffing. Third party Open Source tools are required for Data Model Diagram (GraphViz.org) and Zipping exported folders (dotnetzip.codeplex.com), you need to download and install these and will become the licencee.
+	
+Known issues
+	Populate button on ConfigurationManager does not refresh grid. Workaround press refresh button in ItemWindow toolbar
+	Please create any issues in GitHub
+
+Deployment Guide
+1) Copy files from the Innovator tree from both package. It will be necessary to merge changes in method_config.xml if you have already made changes
+2) Download and install Graphviz on the Innovator Server, Edit the method DMDiagram2 at line 13 to show the installed location of dot.exe
+3) Copy libs.dll from ImportExport tools folder to Innovator/Server/bin
+4) Copy Ionic.dll from dotnetzip download to Innovator/Server/bin
+5) Import the ConfigurationManager and ArasPractitionerTools packages using the standard Import tool, using root credentials
+
+
+

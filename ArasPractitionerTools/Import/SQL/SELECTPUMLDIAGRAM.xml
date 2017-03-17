@@ -1,0 +1,245 @@
+﻿<AML>
+ <Item type="SQL" id="5482CA3609AD4B3E8804321FB4430CBF" action="add">
+  <execution_count>15</execution_count>
+  <execution_flag>immediate</execution_flag>
+  <old_name>SELECTPUMLDIAGRAM</old_name>
+  <sqlserver_body><![CDATA[CREATE procedure selectPUMLdiagram (@TYPE NVARCHAR(30), @id char(32))
+AS
+begin
+declare @max int
+set @max=11
+declare @ct int
+set @ct=0
+declare @no_expand table (name nvarchar(64))
+insert into @no_expand select 'File'
+insert into @no_expand select 'Identity'
+insert into @no_expand select 'Team'
+insert into @no_expand select 'File Type'
+insert into @no_expand select 'Vault'
+insert into @no_expand select 'ItemType'
+insert into @no_expand select 'Help'
+insert into @no_expand select 'Method'
+insert into @no_expand select 'User'
+insert into @no_expand select 'List'
+insert into @no_expand select 'Life Cycle State'
+insert into @no_expand select 'Life Cycle Transition'
+insert into @no_expand select 'Permission'
+
+
+declare @ids table (id char(32));
+declare @edges Table (
+  source_id char(32)
+, source_name nvarchar(30)
+, edge nvarchar(30)
+, relationship_id  char(32)
+, relationship_name nvarchar(30)
+, related_id  char(32)
+, related_name nvarchar(30)
+, lev int
+)
+-- Step 00 - create a table of item type ids
+if @type='itemtype'
+  insert into @ids select @id
+else -- its a package
+ insert into @ids select distinct i.id
+ from PACKAGEDEFINITION pd
+  inner join PACKAGEGROUP pg on pg.SOURCE_ID=pd.ID
+  inner join PACKAGEELEMENT pe on pg.ID=pe.SOURCE_ID
+  inner join ITEMTYPE i on pg.NAME='ItemType' and pe.element_id=i.id
+   or (select relationship_id from RELATIONSHIPTYPE where ID=pe.ELEMENT_ID)=i.id and pg.NAME='RelationshipType'
+  where pd.ID=@id;
+
+--with edges (source_id, source_name, edge, relationship_id, relationship_name, related_id, related_name,lev)
+---- this is a 'common table expression' which facilitates a recursive query
+---- to create a table of edges from which a diagram can be drawn
+--as (
+/*
+Attempts to write this query as a common table expression were unsuccessful because a way of avoiding never-ending-loops 
+from duplicate rows resulting from cicular references in the data model could not be found without making multiple references
+tothe cte. Cte's do not allow use of the keyword distinct either.
+Recursion was written  using while '@@ROWCOUNT > 0', what George called a 'transitive closure'
+*/
+
+  -- this is the seed query
+insert @edges
+  select s.ID , cast((select name from itemtype where id=s.id) as nvarchar(30)),cast('start' as nvarchar(30)), cast(null as char(32)) , cast(null as nvarchar(30)), cast(null as char(32)) ,cast(null as nvarchar(30)),0
+  from @ids s
+  
+while @@ROWCOUNT >0 and @ct<12
+begin
+set @ct=@ct+1
+print @ct
+-- recursive member definition in this case there are several unions, to edges of different types
+insert @edges
+ -- Step 01 - start items
+ select distinct s.id, cast(s.NAME as nvarchar(30)) ,cast('relationship' as nvarchar(30)), rt.RELATIONSHIP_ID, cast(rt.NAME as nvarchar(30)) , r.id,CAST( r.name as nvarchar(30)), e.lev+1
+ from  @edges e ,ITEMTYPE s
+ inner join RELATIONSHIPTYPE as rt on rt.SOURCE_ID= s.id
+ inner join ITEMTYPE r on rt.RELATED_ID= r.id
+ where s.ID=e.source_id and e.edge='start'
+ and not exists (select source_id, relationship_id, related_id from @edges
+  where source_id=s.id and relationship_id=rt.relationship_id and related_id=r.id)
+  union all
+  --Step 03a - relationships to null for start edges
+ select distinct s.id, cast(s.NAME as nvarchar(30)) ,cast('relationship' as nvarchar(30)), rt.RELATIONSHIP_ID, cast(rt.name as nvarchar(30)) , cast(null as char(32)),cast(null as nvarchar(30)), e.lev+1
+ from @edges e, ITEMTYPE s 
+ inner join RELATIONSHIPTYPE as rt on rt.SOURCE_ID= s.id  -- select relationships to null
+ where 
+   s.ID = e.source_id and e.edge='start'  -- expand source, relationship and related
+ and  (e.related_id is null) -- except circular relationships
+ and rt.RELATED_ID is null
+ and e.lev <= @ct
+  and not exists (select source_id, relationship_id, related_id from @edges
+  where source_id=s.id and relationship_id=rt.relationship_id and related_id is null)
+
+union all
+ -- Step 02 - regular relationships
+ select distinct s.id, cast(s.NAME as nvarchar(30)) ,cast('relationship' as nvarchar(30)), rt.RELATIONSHIP_ID, cast(rt.NAME as nvarchar(30)) , r.id,CAST( r.name as nvarchar(30)), e.lev+1
+ from @edges e, ITEMTYPE s 
+ inner join RELATIONSHIPTYPE as rt on rt.SOURCE_ID= s.id
+ inner join ITEMTYPE r on rt.RELATED_ID= r.id
+ where s.NAME not  in (select name from @no_expand) -- don't expand these types
+ --and e.edge <>'property'
+ and  (s.ID = e.related_id or s.ID=e.relationship_id) -- expand relationship and related
+ --and  not (e.source_id = e.related_id) -- except circular relationships'
+ and e.lev <= @ct
+  and not exists (select source_id, relationship_id, related_id from @edges
+  where source_id=s.id and relationship_id=rt.relationship_id and related_id=r.id)
+
+ union all
+ -- Step 03 - relationships to null
+ -- outer joins not allowed in in recursive part of common table expression, so cannot be used in 'regular relationships' query
+ -- retained even without cte
+ select distinct s.id, cast(s.NAME as nvarchar(30)) ,cast('relationship' as nvarchar(30)), rt.RELATIONSHIP_ID, cast(rt.name as nvarchar(30)) , cast(null as char(32)),cast(null as nvarchar(30)), e.lev+1
+ from @edges e, ITEMTYPE s 
+ inner join RELATIONSHIPTYPE as rt on rt.SOURCE_ID= s.id and rt.RELATED_ID is null  -- select relationships to null
+ where 
+  s.NAME not  in (select name from @no_expand) -- don't expand these types
+  and  ( s.ID = e.related_id or --(s.ID=e.source_id and e.edge<>'start') or 
+   s.ID in (select relationship_id from RELATIONSHIPTYPE 
+   where source_id = (select source_id from relationshipType r where r.RELATIONSHIP_ID=e.relationship_id))) -- expand source, relationship and related
+ and  (e.source_id <> e.related_id) -- except circular relationships
+  and e.lev <= @ct
+ and not exists (select source_id, relationship_id, related_id from @edges
+  where source_id=s.id and relationship_id=rt.relationship_id and related_id is null)
+ 
+union all
+ -- Step 04 - properties of type item
+ select distinct s.id, cast(s.NAME as nvarchar(30)) ,cast('property' as nvarchar(30)),CAST(p.ID as CHAR(32)), cast(p.NAME as nvarchar(30)) , r.id,CAST( r.name as nvarchar(30)), e.lev+1
+ from @edges e , ITEMTYPE s 
+ inner join PROPERTY as p on p.SOURCE_ID= s.id
+ inner join ITEMTYPE r on p.data_source= r.id and p.DATA_TYPE='item' and p.data_source <> s.id
+ where s.NAME not  in (select name from @no_expand) -- don't expand these types
+ and  p.NAME NOT in ('id', 'config_id', 'owned_by_id', 'history_id', 'permission_id', 
+                      'created_by_id', 'related_id ', 'managed_by_id', 'current_state',
+                       'source_id', 'locked_by_id', 'modified_by_id','team_id','manager','subflow')
+ and (
+  (e.edge = 'relationship' and s.ID=e.relationship_id ) 
+  or
+  (e.edge = 'relationship' and s.ID=e.related_id and  e.source_id <> e.related_id)
+  or    
+  (e.edge = 'relationship' and s.ID = e.source_id and  e.source_id <> e.related_id)
+  or
+  (e.edge='property' and s.ID=e.related_id and e.source_id <> e.related_id )
+ ) -- get properties of properties
+ and e.lev <= @ct
+ and not exists (select source_id, relationship_id, related_id from @edges
+  where source_id=s.id and relationship_id=p.id and related_id=r.id)
+ union all
+ --Step 05 -  get poly sources
+ select distinct s.id, cast(s.NAME as nvarchar(30)) ,cast('morpha' as nvarchar(30)),CAST(null as CHAR(32)), cast(null as nvarchar(30)) , r.id,CAST( r.name as nvarchar(30)), e.lev+1
+ from @edges e, ITEMTYPE s 
+ inner join morphae as m on m.SOURCE_ID= s.id
+ inner join ITEMTYPE r on m.RELATED_ID= r.id
+ where s.NAME not  in(select name from @no_expand)-- don't expand these types
+ and  s.ID = e.related_id  -- related is a polyitem
+ or s.ID=e.source_id and e.edge='start' -- start item is a polyitem
+ and e.lev <= @ct
+ --and not exists (select source_id, relationship_id, related_id from @edges
+ -- where edge='morpha' and source_id=s.id and related_id=r.id)
+ and NOT e.source_id in (select source_id from @edges)
+--)
+end
+--select distinct lev , edge, source_id, source_name, relationship_name, related_name from @edges
+--where edge='morpha'
+--order by lev, edge , source_name, relationship_name, related_name
+
+ -- now the recursion is finished and we create DOT language 
+ -- to draw nodes and edges of directed graph using graphviz, see www.graphviz.org
+
+select dot_element from
+(
+-- Step 06 - create dot header
+SELECT 'rankdir=TB;  node[shape="record";style="filled" ];' as dot_element
+UNION ALL 
+-- Step 07 - add timestamp label for diagram
+SELECT 'label="Data Model Diagram from Data Server: ' + @@servername +' Database: '+db_name()+ ' Timestamp: '+ CONVERT(char(30), CURRENT_TIMESTAMP) +'" ;'
+UNION ALL
+-- Step 08 - create ItemType nodes
+SELECT 'x' + CAST(i.ID  AS VARCHAR(32)) +
+ '[  style="filled", fillcolor="white",
+  label="{ I '  + CAST(i.name AS VARCHAR(32)) + '| | }"];'
+FROM (
+  select distinct ID from (
+       select source_id as id from @edges
+       union all select related_id as id from @edges where (select implementation_type from itemtype where ID=related_id)<>'polymorphic'
+  ) as allids 
+) as ids
+inner join itemtype i on ids.id=i.id 
+UNION ALL
+-- Step 09 - create Relationship nodes
+SELECT 'x' + CAST(i.ID  AS VARCHAR(32)) +
+ ' [ style="filled", fillcolor="#CC0033",
+  label="{ R '  + CAST(i.name AS VARCHAR(32)) + '| | }"];'
+FROM (
+  select distinct ID from (
+       select relationship_id as id from @edges where edge='relationship'
+  ) as allids 
+) as ids
+inner join itemtype i on ids.id=i.id 
+UNION ALL
+-- Step 11 - create PolyItem nodes
+-- the url here will enable the svg diagram created by dot to call a function on the html page
+-- to open the ItemType Definition Report in Innovator
+SELECT 'x' + CAST(i.ID  AS VARCHAR(32)) +
+ ' [ style="filled", fillcolor="white",
+  label="{ P '  + CAST(i.name AS VARCHAR(32)) + '| | }"];'
+FROM (
+  select distinct ID from (
+       select source_id as id from @edges where edge='morpha'
+  ) as allids 
+) as ids
+inner join itemtype i on ids.id=i.id 
+union ALL
+-- Step 12 - draw relationship to source edges
+SELECT distinct 'x' + CAST(SOURCE_ID AS VARCHAR(32)) +
+' -> x' + CAST(RELATIONSHIP_ID AS VARCHAR(32)) +
+'  [ dir="back",label="source_id"];'
+FROM @edges where edge ='relationship'
+UNION ALL
+-- Step 13 - draw relationship to related edges
+SELECT distinct 'x' + CAST(RELATIONSHIP_ID AS VARCHAR(32)) +
+' -> x' + CAST(RELATED_ID AS VARCHAR(32))+
+'[label="related_id"];'
+FROM @edges where edge ='relationship' and not related_id is null
+UNION ALL
+-- Step 14 - draw morphae edges
+SELECT distinct 'x' + CAST(SOURCE_ID AS VARCHAR(32)) +
+' -> x' + CAST(RELATED_ID AS VARCHAR(32))+'[dir="both",arrowhead="vee",arrowheadsize=2,label="poly_source"];'
+FROM @edges where edge ='morpha'
+UNION ALL
+-- Step 15 - draw property edges
+SELECT distinct 'x' + CAST(SOURCE_ID AS VARCHAR(32)) +
+' -> x' + CAST(RELATED_ID AS VARCHAR(32)) +
+' [ style=dotted, label="'+RELATIONSHIP_name+'"];'
+FROM @edges where edge ='property'
+) as d
+
+
+END]]></sqlserver_body>
+  <stale>0</stale>
+  <transform_first>0</transform_first>
+  <type>procedure</type>
+  <name>SELECTPUMLDIAGRAM</name>
+ </Item>
+</AML>
