@@ -8,6 +8,7 @@ v11SP3   12/22/2015 PackageAudit updated
 v11SP5   04/22/2016 List/Sequence Where used added
 v11SP9   03/24/2017 Updated for SP9, dependence on ActiveX removed.
 v11SP9   04/29/2017 Fixed issue missing DashboardEx10SP2.aspx, Removed unecessary Innovator folder from repo root
+v11SP9   05/12/2017 Known issues, added to this file AddToPackage works in pop-out window only, set credentials in ExportPackage Method
 
 These tools are intended to help implementation team members, Aras Practitioners, export, diff and import Aras PackageDefinition and support both manual and automated source control processes, following these steps:
 	1. Determine what changes have been made in a dev database that need to be shared with others
@@ -18,7 +19,9 @@ These tools are intended to help implementation team members, Aras Practitioners
 The tools use same libs.dll assembly used by the Aras Solutions Upgrade tools. Third party tool such as BeyondCompare or DiffDog is required for diffing. Third party Open Source tools are required for Data Model Diagram (GraphViz.org) and Zipping exported folders (dotnetzip.codeplex.com), you need to download and install these and will become the licencee.
 	
 Known issues
-	Populate button on ConfigurationManager does not refresh grid. Workaround press refresh button in ItemWindow toolbar
+	1001) Populate button on ConfigurationManager does not refresh grid. Workaround press refresh button in ItemWindow toolbar
+	1002) AddToPackage works in pop-out window only. Workaround: Pop-out ConfigurationManager by clicking top left of in-line tab to use AddToPackage.
+	1003) Export button from ConfigurationManager Form. Workaround: Edit Method  cm_export_selected_2.xml to hardcode credentials at top of method.
 	Please create any issues in GitHub
 
 Deployment Guide
