@@ -28,7 +28,7 @@ Deployment Guide
 1) Copy files from the Innovator tree from both packages. It will be necessary to merge changes in method_config.xml if you have already made changes
 2) Download and install Graphviz on the Innovator Server, Edit the method DMDiagram2 at line 13 to show the installed location of dot.exe
 3) Copy libs.dll from ImportExport tools folder to Innovator/Server/bin
-4) Copy Ionic.dll from dotnetzip download to Innovator/Server/bin
+4) Copy Ionic.Zip.dll from dotnetzip download to Innovator/Server/bin
 5) Import the ConfigurationManager and ArasPractitionerTools packages using the standard Import tool, using root credentials
 
 

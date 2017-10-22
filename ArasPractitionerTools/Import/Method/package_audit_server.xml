@@ -8,9 +8,6 @@ string package_names=this_item.getProperty("name");
 
 
 
-string ss=HttpContext.Current.Request.MapPath("../Client/customer/defaultss.xsl");
-string m=this.applyStylesheet(ss,"url");
-//return innov.newError(m);
 
 Item qry1 = this.newItem("SQL","SQL PROCESS");
 qry1.setProperty("name","SelectPackageAudit");
