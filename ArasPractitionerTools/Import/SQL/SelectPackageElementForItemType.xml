@@ -1,7 +1,7 @@
 ﻿<AML>
  <Item type="SQL" id="869355E3016045C1AA484003493DCEDD" action="add">
   <execution_count>8</execution_count>
-  <execution_flag>manual</execution_flag>
+  <execution_flag>immediate</execution_flag>
   <old_name>SelectPackageElementForItemType</old_name>
   <sqlserver_body><![CDATA[CREATE PROCEDURE SelectPackageElementForItemType(@ID char(32)) AS
 begin

@@ -1,11 +1,11 @@
 ﻿<AML>
  <Item type="SQL" id="A0B4999B9ED04C54B6CD51D6BE905B69" action="add">
   <execution_count>5</execution_count>
-  <execution_flag>manual</execution_flag>
+  <execution_flag>immediate</execution_flag>
   <old_name>SelectPackageAudit</old_name>
   <sqlserver_body><![CDATA[CREATE PROCEDURE SelectPackageAudit(@package_names_string varchar(max)) AS
 begin
-declare @package_names_string varchar(max)
+--declare @package_names_string varchar(max)
 
 if exists (select * from sysobjects where name='PackageAudit' and xtype='U')
     drop table innovator.PackageAudit

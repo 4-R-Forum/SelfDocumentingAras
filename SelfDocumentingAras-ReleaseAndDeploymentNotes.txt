@@ -9,6 +9,7 @@ v11SP5   04/22/2016 List/Sequence Where used added
 v11SP9   03/24/2017 Updated for SP9, dependence on ActiveX removed.
 v11SP9   04/29/2017 Fixed issue missing DashboardEx10SP2.aspx, Removed unecessary Innovator folder from repo root
 v11SP9   05/12/2017 Known issues, added to this file AddToPackage works in pop-out window only, set credentials in ExportPackage Method
+v12SP3	01/27/2020	ConfigurationManager package deleted, to be replaced by Powershell Tools from another repo, release notes updated.
 
 These tools are intended to help implementation team members, Aras Practitioners, export, diff and import Aras PackageDefinition and support both manual and automated source control processes, following these steps:
 	1. Determine what changes have been made in a dev database that need to be shared with others
@@ -16,20 +17,17 @@ These tools are intended to help implementation team members, Aras Practitioners
 	3. Create packages that can be tested, validated and deployed to production, with the least effort
 	4. Save and merge changes with whatever source control process the team is using
 
-The tools use same libs.dll assembly used by the Aras Solutions Upgrade tools. Third party tool such as BeyondCompare or DiffDog is required for diffing. Third party Open Source tools are required for Data Model Diagram (GraphViz.org) and Zipping exported folders (dotnetzip.codeplex.com), you need to download and install these and will become the licencee.
+Third party tool such as BeyondCompare is required for diffing. Third party Open Source tools are required for Data Model Diagram (GraphViz.org), you need to download and install GraphViz become the Eclipse licencee.
 	
 Known issues
-	1001) Populate button on ConfigurationManager does not refresh grid. Workaround press refresh button in ItemWindow toolbar
-	1002) AddToPackage works in pop-out window only. Workaround: Pop-out ConfigurationManager by clicking top left of in-line tab to use AddToPackage.
-	1003) Export button from ConfigurationManager Form. Workaround: Edit Method  cm_export_selected_2.xml to hardcode credentials at top of method.
 	Please create any issues in GitHub
-
+	1004) DMDiagram still uses Ctrl+- and scrollbars for pan-zoom, enahancement coming with mouse controls
+	Please create any issues in GitHub
+	
 Deployment Guide
-1) Copy files from the Innovator tree from both packages. It will be necessary to merge changes in method_config.xml if you have already made changes
+1) Copy files from the Innovator tree from the ArasPractitionerTools package. 
 2) Download and install Graphviz on the Innovator Server, Edit the method DMDiagram2 at line 13 to show the installed location of dot.exe
-3) Copy libs.dll from ImportExport tools folder to Innovator/Server/bin
-4) Copy Ionic.Zip.dll from dotnetzip download to Innovator/Server/bin
-5) Import the ConfigurationManager and ArasPractitionerTools packages using the standard Import tool, using root credentials
+3) Import the ArasPractitionerTools packages using the standard Import tool, using root credentials.
 
 
 

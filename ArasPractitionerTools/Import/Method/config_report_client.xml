@@ -5,7 +5,7 @@
 var tz=innov.getItemByKeyedName("Variable","CorporateTimeZone");
 if (tz===null)
 {
-    top.aras.AlertError("Please set CorporateTimeZone Variable to run Configuration Report");
+    aras.AlertError("Please set CorporateTimeZone Variable to run Configuration Report");
     return;
 }
 
