@@ -1,7 +1,7 @@
 ﻿<AML>
  <Item type="SQL" id="5482CA3609AD4B3E8804321FB4430CBF" action="add">
   <execution_count>15</execution_count>
-  <execution_flag>immediate</execution_flag>
+  <execution_flag>manual</execution_flag>
   <old_name>SELECTPUMLDIAGRAM</old_name>
   <sqlserver_body><![CDATA[CREATE procedure selectPUMLdiagram (@TYPE NVARCHAR(30), @id char(32))
 AS
